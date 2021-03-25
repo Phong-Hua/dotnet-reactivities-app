@@ -1,19 +1,22 @@
-import React from 'react';
 import ReactDOM from 'react-dom';
 import 'semantic-ui-css/semantic.min.css';
 import 'react-calendar/dist/Calendar.css';
+import 'react-toastify/dist/ReactToastify.min.css';
 import './app/layout/styles.css';
 import App from './app/layout/App';
 import reportWebVitals from './reportWebVitals';
 import {StoreContext, store} from './app/stores/stores';
-import { BrowserRouter } from 'react-router-dom';
+import { Router } from 'react-router-dom';
+import { createBrowserHistory } from 'history';
+
+export const history = createBrowserHistory();
 
 ReactDOM.render(
   // Provide the StoreContext into the app with "store" as a value
   <StoreContext.Provider value={store}>
-    <BrowserRouter>
+    <Router history={history}> {/**Use Router instead of BrowserRouter*/}
       <App />
-    </BrowserRouter>
+    </Router>
   </StoreContext.Provider>,
   document.getElementById('root')
 );

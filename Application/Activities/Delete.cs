@@ -1,6 +1,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Application.Core;
 using MediatR;
 using Persistence;
 
@@ -8,12 +9,12 @@ namespace Application.Activities
 {
     public class Delete
     {
-        public class Command : IRequest
+        public class Command : IRequest<Result<Unit>>
         {
             public Guid Id { get; set; }
         }
 
-        public class Handler : IRequestHandler<Command>
+        public class Handler : IRequestHandler<Command, Result<Unit>>
         {
             private readonly DataContext _context;
             public Handler(DataContext context)
@@ -21,14 +22,16 @@ namespace Application.Activities
                 this._context = context;
 
             }
-            public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
+            public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
             {
                 var activity = await _context.Activities.FindAsync(request.Id);
-                // No validation or error handling at this stage, we assume everything is going right
+                // if (activity == null)
+                //     return null;    // return null so, in controller we can return 404 not found.
                 _context.Remove(activity);
-                await _context.SaveChangesAsync();
-
-                return Unit.Value;
+                var result = await _context.SaveChangesAsync() > 0;
+                if (!result)
+                    return Result<Unit>.Failure("Failed to delete activity");
+                return Result<Unit>.Success(Unit.Value);
             }
         }
     }
