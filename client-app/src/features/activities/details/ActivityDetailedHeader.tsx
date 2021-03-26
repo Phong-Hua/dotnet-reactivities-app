@@ -2,12 +2,14 @@ import { observer } from 'mobx-react-lite';
 import { Link } from 'react-router-dom';
 import {Button, Header, Item, Segment, Image} from 'semantic-ui-react'
 import {Activity} from "../../../app/models/activity";
-import {format, parseISO} from 'date-fns';
+import {format} from 'date-fns';
 
 // dimmed the image to have text over the image
 const activityImageStyle = {
     filter: 'brightness(30%)'
 };
+
+
 
 const activityImageTextStyle = {
     position: 'absolute',
@@ -23,6 +25,7 @@ interface Props {
 }
 
 export default observer (function ActivityDetailedHeader({activity}: Props) {
+
     return (
         <Segment.Group>
             <Segment basic attached='top' style={{padding: '0'}}>
@@ -36,8 +39,6 @@ export default observer (function ActivityDetailedHeader({activity}: Props) {
                                     content={activity.title}
                                     style={{color: 'white'}}
                                 />
-                                {/* {parseIS} */}
-                                {/* {console.log('daTE', typeof(activity.date) === 'Date')} */}
                                 <p>{format(activity.date!, 'dd MMM yyyy')}</p>
                                 <p>
                                     Hosted by <strong>Bob</strong>
