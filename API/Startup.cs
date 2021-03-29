@@ -3,8 +3,10 @@ using API.Extensions;
 using API.Middleware;
 using Application.Activities;
 using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -25,11 +27,15 @@ namespace API
         {
             // add fluent validation and we want to specify where the validator is
             // we only need to do this once
-            services.AddControllers().AddFluentValidation(config => {
+            services.AddControllers(opt => 
+            {
+                var policy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
+                opt.Filters.Add(new AuthorizeFilter(policy));
+            })
+            .AddFluentValidation(config => {
                 config.RegisterValidatorsFromAssemblyContaining<Create>();
             });
             services.AddApplicationServices(_config);
-
             services.AddIdentityServices(_config);
         }
 
@@ -49,6 +55,7 @@ namespace API
 
             app.UseCors("CorsPolicy");  // this line is after app.UseRouting();
 
+            app.UseAuthentication();    // this need to be before use Authorization
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>

@@ -20,16 +20,17 @@ namespace API.Extensions
             })
             .AddEntityFrameworkStores<DataContext>()    // register user store and role store with our app
             .AddSignInManager<SignInManager<AppUser>>();
-
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("super secret key"));
+            
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["TokenKey"]));
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(opt => {
                 opt.TokenValidationParameters = new TokenValidationParameters {
-                    ValidationIssuerSigningKey = true,
+                    ValidateIssuerSigningKey = true,
                     IssuerSigningKey = key,
                     ValidateIssuer = false,
                     ValidateAudience = false,
-                }; // how do we want to validate
+                }; // We are not doing bullet proof validation, we are just
+                // implement easiest thing to work with API
             });   // need it in order to access to SignInManager
             services.AddScoped<TokenService>();
             

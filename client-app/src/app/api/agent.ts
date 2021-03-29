@@ -3,6 +3,7 @@ import { toast } from 'react-toastify';
 import {Activity} from '../models/activity';
 import {history} from '../../index';
 import { store } from '../stores/stores';
+import { User, UserFormValues } from '../models/user';
 
 axios.defaults.baseURL = 'http://localhost:5000/api';
 
@@ -69,8 +70,15 @@ const Activities = {
     delete: (id: string) => axios.delete<void>(`/activities/${id}`)
 }
 
+const Account = {
+    current: () => requests.get('/account'),
+    login: (user: UserFormValues) => requests.post<User>('/account/login', user),
+    register: (user: UserFormValues) => requests.post<User>('/account/register', user)
+}
+
 const agent = {
-    Activities
+    Activities,
+    Account
 }
 
 export default agent;

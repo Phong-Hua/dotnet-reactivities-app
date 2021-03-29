@@ -1,15 +1,16 @@
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Domain;
 using Microsoft.AspNetCore.Mvc;
 using Application.Activities;
+using Microsoft.AspNetCore.Authorization;
 
 namespace API.Controllers
 {
     public class ActivitiesController : BaseApiController
     {
-        
+
+        [AllowAnonymous]
         [HttpGet]
         public async Task<IActionResult> GetActivities()
         {

@@ -4,12 +4,19 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Domain;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 
 namespace API.Services
 {
     public class TokenService
     {
+        private readonly IConfiguration config;
+
+        public TokenService(IConfiguration config)
+        {
+            this.config = config;
+        }
         public string CreateToken(AppUser user)
         {
             // Step 1
@@ -23,7 +30,7 @@ namespace API.Services
             };
 
             // Step 2 create a key from secret key, we are using dumb key here
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("super secret key"));
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["TokenKey"]));
             // Step 3 using strongest one algorithm atm HmacSha512Signature
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
 
