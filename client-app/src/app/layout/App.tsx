@@ -11,13 +11,29 @@ import NotFound from '../../features/errors/NotFound';
 import ServerError from '../../features/errors/ServerError';
 import { ToastContainer } from 'react-toastify';
 import LoginForm from '../../features/users/LoginForm';
+import { useStore } from '../stores/stores';
+import { useEffect } from 'react';
+import LoadingComponent from './LoadingComponent';
+import ModalContainer from '../common/modals/ModalContainer';
 
 function App() {
+  const {commonStore, userStore} = useStore();
   const location = useLocation();
+
+  useEffect(()=>{
+    if (commonStore.token) {
+      userStore.getUser().finally(() => commonStore.setAppLoaded());
+    } else {
+      commonStore.setAppLoaded();
+    }
+  }, [commonStore, userStore])
+
+  if (!commonStore.appLoaded) return <LoadingComponent content='Loading app...' />
 
   return (
     <>
       <ToastContainer position='bottom-right' hideProgressBar />
+      <ModalContainer />
       <Route path='/' exact component={HomePage} />
       <Route
         path={'/(.+)'}

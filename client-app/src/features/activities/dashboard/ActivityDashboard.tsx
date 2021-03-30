@@ -16,7 +16,7 @@ function ActionDashboard() {
     }, [loadActivities, activitiesRegistry])  // passing activityStore as an array of dependencies to avoid looping infinitely
   
   
-    if (activityStore.loadingInitial) return <LoadingComponent />
+    if (activityStore.loadingInitial) return <LoadingComponent content='Loading activities...'/>
   
     return (
         <Grid>

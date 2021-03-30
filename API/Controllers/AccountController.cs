@@ -54,12 +54,14 @@ namespace API.Controllers
             // makesure email does not exist
             if (await userManager.Users.AnyAsync(x => x.Email == registerDto.Email))
             {
-                return BadRequest("Email taken");
+                ModelState.AddModelError("Email", "Email taken.");
+                return ValidationProblem();
             }
 
             if (await userManager.Users.AnyAsync(x => x.UserName == registerDto.Username))
             {
-                return BadRequest("Username taken");
+                ModelState.AddModelError("Username", "Username taken.");
+                return ValidationProblem();
             }
 
             var user = new AppUser
@@ -75,8 +77,7 @@ namespace API.Controllers
             {
                 return CreateUserObject(user);
             }
-
-            return BadRequest("Problem registering user");
+            return BadRequest("Problem registering user.");
         }
 
         [Authorize]

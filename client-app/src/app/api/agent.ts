@@ -13,6 +13,12 @@ const sleep = (delay: number) => new Promise<void>((res) => {
     return setTimeout(res, delay)
 })
 
+axios.interceptors.request.use(config => {
+    const token = store.commonStore.token;
+    if (token)
+        config.headers.Authorization = `Bearer ${token}`
+    return config;
+})
 
 axios.interceptors.response.use(async respose => {
     await sleep(1000);
@@ -71,7 +77,7 @@ const Activities = {
 }
 
 const Account = {
-    current: () => requests.get('/account'),
+    current: () => requests.get<User>('/account'),
     login: (user: UserFormValues) => requests.post<User>('/account/login', user),
     register: (user: UserFormValues) => requests.post<User>('/account/register', user)
 }
