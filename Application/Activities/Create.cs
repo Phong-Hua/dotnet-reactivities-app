@@ -1,9 +1,11 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
+using Application.Interfaces;
 using Domain;
 using FluentValidation;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Persistence;
 
 namespace Application.Activities
@@ -27,22 +29,35 @@ namespace Application.Activities
         public class Handler : IRequestHandler<Command, Result<Unit>>
         {
             private readonly DataContext _context;
-            public Handler(DataContext context)
+            private readonly IUserAccessor _userAccessor;
+            public Handler(DataContext context, IUserAccessor userAccessor)
             {
+                this._userAccessor = userAccessor;
                 this._context = context;
             }
 
-// Even though, we return nothing here, but we still need to return Task<Unit>
-// because Unit is a special Object in MediatR, that means nothing.
+            // Even though, we return nothing here, but we still need to return Task<Unit>
+            // because Unit is a special Object in MediatR, that means nothing.
             public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
             {
+                // make the user create activity as an attendee
+                var user = await _context.Users.FirstOrDefaultAsync(x => 
+                    x.UserName == _userAccessor.GetUsername());
+
+                var attendee = new ActivityAttendee {
+                    AppUser = user,
+                    Activity = request.Activity,
+                    IsHost = true
+                };
+                request.Activity.Attendees.Add(attendee);
+
                 // we don't use AddAsync because we are not accessing database at
                 // this point
                 _context.Activities.Add(request.Activity);
 
                 var result = await _context.SaveChangesAsync() > 0;
 
-                if (!result) 
+                if (!result)
                     return Result<Unit>.Failure("Failed to create activity");
                 return Result<Unit>.Success(Unit.Value);
                 // this means return nothing.

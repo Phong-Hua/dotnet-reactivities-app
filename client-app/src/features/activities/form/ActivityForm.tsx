@@ -3,7 +3,6 @@ import { Button,Header,Segment } from 'semantic-ui-react';
 import { useStore } from '../../../app/stores/stores';
 import { observer } from 'mobx-react-lite';
 import { useHistory, useParams } from 'react-router';
-import LoadingComponent from '../../../app/layout/LoadingComponent';
 import { Link } from 'react-router-dom';
 import {  Form, Formik } from 'formik';
 import * as Yup from 'yup';
@@ -13,23 +12,15 @@ import MyTextArea from '../../../app/common/form/MyTextArea';
 import MySelectInput from '../../../app/common/form/MySelectInput';
 import MyDateInput from '../../../app/common/form/MyDateInput';
 import categoryOptions from '../../../app/common/options/categoryOptions';
-import { Activity } from '../../../app/models/activity';
+import { ActivityFormValues } from '../../../app/models/activity';
 
 function ActivityForm() {
     const history = useHistory();
     const { activityStore } = useStore();
-    const { updateActivity, createActivity, loadingInitial, loadActivity } = activityStore;
+    const { updateActivity, createActivity, loadActivity } = activityStore;
     const { id } = useParams<{ id: string }>();
 
-    const [activity, setActivity] = useState<Activity>({
-        id: '',
-        title: '',
-        category: '',
-        description: '',
-        date: null,
-        city: '',
-        venue: '',
-    });
+    const [activity, setActivity] = useState<ActivityFormValues>(new ActivityFormValues());
 
     const validationSchema = Yup.object({
         title: Yup.string().required('The activity title is required'), // the message
@@ -45,13 +36,13 @@ function ActivityForm() {
             loadActivity(id)
                 .then(activity => {
                     if (activity)
-                        setActivity(activity);
+                        setActivity(new ActivityFormValues(activity));
                 })
         }
     }, [id, loadActivity])
 
-    function handleFormSubmit(activity: Activity) {
-        if (activity.id.length === 0) {
+    function handleFormSubmit(activity: ActivityFormValues) {
+        if (!activity.id) {
             let newActivity = {
                 ...activity,
                 id: uuid()
@@ -67,8 +58,8 @@ function ActivityForm() {
     }
 
 
-    if (loadingInitial)
-        return <LoadingComponent content='Loading activity...' />
+    // if (loadingInitial)
+    //     return <LoadingComponent content='Loading activity...' />
 
     return (
         <Segment clearing>
@@ -95,7 +86,7 @@ function ActivityForm() {
                         <MyTextInput placeholder='Venue' name='venue' />
                         <Button 
                             disabled={isSubmitting || !dirty || !isValid}
-                            loading={loadingInitial} 
+                            loading={isSubmitting} 
                             floated='right' 
                             positive type='submit' content='Submit' />
                         <Button as={Link} to='/activities' floated='right' type='button' content='Cancel' />
