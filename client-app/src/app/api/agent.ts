@@ -4,6 +4,7 @@ import {Activity, ActivityFormValues} from '../models/activity';
 import {history} from '../../index';
 import { store } from '../stores/stores';
 import { User, UserFormValues } from '../models/user';
+import { Profile } from '../models/profile';
 
 
 axios.defaults.baseURL = 'http://localhost:5000/api';
@@ -84,9 +85,25 @@ const Account = {
     register: (user: UserFormValues) => requests.post<User>('/account/register', user)
 }
 
+const Profiles = {
+    get: (username: string) => requests.get<Profile>(`/profiles/${username}`),
+    uploadPhoto: (file: Blob) => {
+        let formData = new FormData();
+        formData.append('File', file);
+        return axios.post('photos', formData, {
+            headers: {'Content-type': 'multipart/form-data'}
+        })
+    },
+    setMainPhoto: (id: string) => requests.post(`/photos/${id}/setmain`, {}),
+    deletePhoto: (id: string) => requests.del(`/photos/${id}`)
+}
+
+
+
 const agent = {
     Activities,
-    Account
+    Account,
+    Profiles
 }
 
 export default agent;

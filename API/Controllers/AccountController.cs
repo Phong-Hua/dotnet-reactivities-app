@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using API.DTOs;
@@ -29,20 +30,15 @@ namespace API.Controllers
         [HttpPost("login")]
         public async Task<ActionResult<UserDto>> Login(LoginDto loginDto)
         {
-            var user = await userManager.FindByEmailAsync(loginDto.Email);
+            var user = await userManager.Users.Include(u => u.Photos).FirstOrDefaultAsync(s => s.Email == loginDto.Email);
+            // var user = await userManager.FindByEmailAsync(loginDto.Email);
             if (user == null) return Unauthorized();
 
             var result = await signInManager.CheckPasswordSignInAsync(user, loginDto.Password, false);
             // false mean not lockout for failure
             if (result.Succeeded)
             {
-                return new UserDto
-                {
-                    DisplayName = user.DisplayName,
-                    Image = null,
-                    Token = tokenService.CreateToken(user), // dumb token
-                    Username = user.UserName
-                };
+                return CreateUserObject(user);
             }
             return Unauthorized();
         }
@@ -84,7 +80,8 @@ namespace API.Controllers
         [HttpGet]
         public async Task<ActionResult<UserDto>> GetCurrentUser()
         {
-            var user = await userManager.FindByEmailAsync(User.FindFirstValue(ClaimTypes.Email)); // Email is one of the ClaimTypes we setting up token
+            var user = await userManager.Users.Include(u => u.Photos).FirstOrDefaultAsync(s => s.Email == User.FindFirstValue(ClaimTypes.Email));
+            // .FindByEmailAsync(User.FindFirstValue(ClaimTypes.Email)); // Email is one of the ClaimTypes we setting up token
 
             return CreateUserObject(user);
         }
@@ -95,7 +92,7 @@ namespace API.Controllers
             {
                 DisplayName = user.DisplayName,
                 Username = user.UserName,
-                Image = null,
+                Image = user?.Photos?.FirstOrDefault(x => x.IsMain)?.Url,
                 Token = tokenService.CreateToken(user),
             };
         }

@@ -16,6 +16,8 @@ namespace Persistence
 
         public DbSet<ActivityAttendee> ActivityAttendees { get; set; }
 
+        public DbSet<Photo> Photos {get; set; }
+
         // Override the OnModelCreating method from DBContext
         protected override void OnModelCreating(ModelBuilder builder)
         {
