@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 
 namespace Domain
 {
@@ -12,19 +11,14 @@ namespace Domain
         // Because we call 'Id', Entity Framework is gonna recognise this as primary key for Activity.
         // If we call it something else, then Entity Framework does not know which we want to use as Id 
         public Guid Id { get; set; }
-
         public string Title { get; set; }
-
         public DateTime Date { get; set; }
-
         public String Description { get; set; }
-
         public string Category { get; set; }
-
         public string City { get; set; }
-
         public string Venue { get; set; }
         public bool IsCancelled { get; set; }
         public ICollection<ActivityAttendee> Attendees { get; set; } = new List<ActivityAttendee>();   // initialize value
+        public ICollection<Comment> Comments { get; set; } = new List<Comment>();
     }
 }

@@ -29,7 +29,11 @@ namespace API.Extensions
             // Fix cors problem
             services.AddCors(opt => {
                 opt.AddPolicy("CorsPolicy", policy => {
-                    policy.AllowAnyMethod().AllowAnyHeader().WithOrigins("http://localhost:3000");
+                    policy
+                        .AllowAnyMethod()
+                        .AllowAnyHeader()
+                        .AllowCredentials() // this will allow signalR to send credential
+                        .WithOrigins("http://localhost:3000");
                 });
             });
 
@@ -39,6 +43,7 @@ namespace API.Extensions
             services.AddScoped<IUserAccessor, UserAccessor>();
             services.AddScoped<IPhotoAccessor, PhotoAccessor>();
             services.Configure<CloudinarySettings>(config.GetSection("Cloudinary")); // this need to be matched with the appsettings.json
+            services.AddSignalR();
             return services;
         }
     }

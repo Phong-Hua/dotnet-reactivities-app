@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { Button, Segment } from 'semantic-ui-react';
-import { Formik, Form, validateYupSchema } from 'formik';
+import { useEffect, useState } from 'react';
+import { Button, } from 'semantic-ui-react';
+import { Formik, Form,  } from 'formik';
 import MyTextInput from '../../app/common/form/MyTextInput';
 import MyTextArea from '../../app/common/form/MyTextArea';
 import { Profile, ProfileFormValues } from '../../app/models/profile';
