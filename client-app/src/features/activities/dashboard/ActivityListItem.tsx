@@ -53,7 +53,6 @@ const ActivityListItem = ({activity} : Props) => {
             </Segment>
             <Segment secondary>
                 <ActivityListItemAttendee attendees={activity.attendees!}/>
-                {/* Attendees go here */}
             </Segment>
             <Segment>
                 <span>{activity.description}</span>

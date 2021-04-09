@@ -10,6 +10,8 @@ namespace Application.Core
     {
         public MappingProfiles()
         {
+            string currentUsername = null;  // we add currentUsername so, from outside we can pass param to this
+
             // specify where we want to map from and to
             // we are mapping from Activity to Activity
             CreateMap<Activity, Activity>();
@@ -21,7 +23,10 @@ namespace Application.Core
                 .ForMember(d => d.Username, o => o.MapFrom(s => s.AppUser.UserName))
                 // Map Bio of Profile
                 .ForMember(d => d.Bio, o => o.MapFrom(s => s.AppUser.Bio))
-                .ForMember(d => d.Image, o => o.MapFrom(s => s.AppUser.Photos.FirstOrDefault(p => p.IsMain).Url));
+                .ForMember(d => d.Image, o => o.MapFrom(s => s.AppUser.Photos.FirstOrDefault(p => p.IsMain).Url))
+                .ForMember(d => d.FollowersCount, o => o.MapFrom(s => s.AppUser.Followers.Count))
+                .ForMember(d => d.FollowingCount, o => o.MapFrom(s => s.AppUser.Followings.Count))
+                .ForMember(d => d.Following, o => o.MapFrom(s => s.AppUser.Followers.Any(x => x.Observer.UserName == currentUsername)));
             
             // mapping Activity to ActivityDto
             CreateMap<Activity, ActivityDto>()
@@ -31,12 +36,18 @@ namespace Application.Core
                 ));
             
             CreateMap<AppUser, Profiles.Profile>()
-                .ForMember(d => d.Image, o => o.MapFrom(s => s.Photos.FirstOrDefault(p => p.IsMain).Url));
+                .ForMember(d => d.Image, o => o.MapFrom(s => s.Photos.FirstOrDefault(p => p.IsMain).Url))
+                .ForMember(d => d.FollowingCount, o => o.MapFrom(s => s.Followings.Count))
+                .ForMember(d => d.FollowersCount, o => o.MapFrom(s => s.Followers.Count))
+                .ForMember(d => d.Following, 
+                    o => o.MapFrom(s => s.Followers.Any(x => x.Observer.UserName == currentUsername)));
 
             CreateMap<Comment, CommentDto>()
                 .ForMember(d => d.Username, o => o.MapFrom(s => s.Author.UserName))
                 .ForMember(d => d.DisplayName, o => o.MapFrom(s => s.Author.DisplayName))
                 .ForMember(d => d.Image, o => o.MapFrom(s => s.Author.Photos.FirstOrDefault(p => p.IsMain).Url));
+
+            
         }
     }
 }
