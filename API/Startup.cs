@@ -44,6 +44,13 @@ namespace API
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             app.UseMiddleware<ExceptionMiddleware>();
+
+            app.UseXContentTypeOptions();
+            app.UseReferrerPolicy(opt => opt.NoReferrer()); // Our browser will not send any referrer information
+            app.UseXXssProtection(opt => opt.EnabledWithBlockMode());   // give us cross-site scripting protection
+            app.UseXfo(opt => opt.Deny());  // prevent our application from being used in an iFrame somewhere else
+            // app.UseCspReportOnly(opt => );
+
             if (env.IsDevelopment())
             {
                 app.UseSwagger();
