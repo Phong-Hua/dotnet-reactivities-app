@@ -10,12 +10,12 @@ import TestError from '../../features/errors/TestError';
 import NotFound from '../../features/errors/NotFound';
 import ServerError from '../../features/errors/ServerError';
 import { ToastContainer } from 'react-toastify';
-import LoginForm from '../../features/users/LoginForm';
 import { useStore } from '../stores/stores';
 import { useEffect } from 'react';
 import LoadingComponent from './LoadingComponent';
 import ModalContainer from '../common/modals/ModalContainer';
 import ProfilePage from '../../features/profiles/ProfilePage';
+import PrivateRoute from '../layout/PrivateRoute';
 
 function App() {
   const {commonStore, userStore} = useStore();
@@ -44,13 +44,12 @@ function App() {
               <NavBar />
               <Container style={{ marginTop: '7em', }}>
                 <Switch>  {/*Use switch so only one route is loaded at a time*/}
-                  <Route path='/activities' exact component={ActivityDashboard} />
-                  <Route key={location.key} path={['/createActivity', '/manage/:id']} exact component={ActivityForm} />
-                  <Route path='/activities/:id' exact component={ActivityDetails} />
-                  <Route path='/buggy' exact component={TestError} />
-                  <Route path='/profiles/:username' component={ProfilePage} />
+                  <PrivateRoute path='/activities' exact component={ActivityDashboard} />
+                  <PrivateRoute key={location.key} path={['/createActivity', '/manage/:id']} exact component={ActivityForm} />
+                  <PrivateRoute path='/activities/:id' exact component={ActivityDetails} />
+                  <PrivateRoute path='/profiles/:username' component={ProfilePage} />
+                  <Route path='/errors' exact component={TestError} />
                   <Route path='/server-error' component={ServerError} />
-                  <Route path='/login' component={LoginForm} />
                   <Route component={NotFound} />
                 </Switch>
               </Container>
