@@ -1,25 +1,25 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Core;
 using Application.Interfaces;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
-using Domain;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 using Persistence;
 
 namespace Application.Activities
 {
     public class List
     {
-        public class Query : IRequest<Result<List<ActivityDto>>>
+        public class Query : IRequest<Result<PagedList<ActivityDto>>>
         {
             // Parameters will go here, if we need to pass to query
+            public ActivityParams Params { get; set; }
         }
 
-        public class Handler : IRequestHandler<Query, Result<List<ActivityDto>>>
+        public class Handler : IRequestHandler<Query, Result<PagedList<ActivityDto>>>
         {
             private readonly DataContext _context;
             // Passing DataContext to constructor
@@ -31,13 +31,27 @@ namespace Application.Activities
                 this._mapper = mapper;
                 this._context = context;
             }
-            public async Task<Result<List<ActivityDto>>> Handle(Query request, CancellationToken cancellationToken)
+            public async Task<Result<PagedList<ActivityDto>>> Handle(Query request, CancellationToken cancellationToken)
             {
-                var activities = await _context.Activities
+                var query = _context.Activities
+                .Where(d => d.Date >= request.Params.StartDate)
+                .OrderBy(x => x.Date)
                 .ProjectTo<ActivityDto>(_mapper.ConfigurationProvider, new {currentUsername = _userAccessor.GetUsername()})
-                .ToListAsync(cancellationToken);
+                .AsQueryable();
 
-                return Result<List<ActivityDto>>.Success(activities);
+                if (request.Params.IsGoing && !request.Params.IsHost)   // find activity that user are going and not hosting
+                {
+                    query = query.Where(x => x.Attendees.Any(a => a.Username == _userAccessor.GetUsername()));
+                }
+                if (request.Params.IsHost && !request.Params.IsGoing)  // find activity that user are hosting
+                {
+                    query = query.Where(x => x.HostUsername == _userAccessor.GetUsername());
+                }
+
+                return Result<PagedList<ActivityDto>>.Success(
+                    await PagedList<ActivityDto>.CreateAsync(query, request.Params.PageNumber, 
+                        request.Params.PageSize)
+                );
             }
         }
     }
